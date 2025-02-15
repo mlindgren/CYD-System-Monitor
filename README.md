@@ -29,9 +29,8 @@ A sleek system monitoring display powered by ESP32 that shows real-time system m
 
 - ESP32 development board
 - TFT display compatible with TFT_eSPI library
-
-I'm using this cheap yellow display with ESP32 built in: [aliexpress](https://s.click.aliexpress.com/e/_olrdG2w)
-The settings in this project are for this display.
+  - I'm using this cheap yellow display with ESP32 built in: [aliexpress](https://s.click.aliexpress.com/e/_olrdG2w)
+  - The settings in this project are for this display.
 
 - PlatformIO
 - Glances server running on the target system
@@ -48,6 +47,7 @@ The settings in this project are for this display.
 1. Clone this repository
 2. Open the project in PlatformIO
 
+   - Rename the `platformio.example.ini` file to `platformio.ini`
    - Edit the `platformio.ini` file to set the correct path to your Arduino libraries
 
 3. Configure your TFT display settings:
@@ -61,12 +61,15 @@ The settings in this project are for this display.
 
    ```
 
-4. Configure your network settings in config.cpp:
+4. Configure your network settings in credentials.example.h:
+
+   - Rename the file to `credentials.h`
+   - Edit the file to set your WiFi SSID and password
 
    ```cpp
 
-   const char*const ssid = "YOUR_WIFI_SSID";
-   const char* const password = "YOUR_WIFI_PASSWORD";
+    const char*const WIFI_SSID = "your_ssid_here";
+    const char* const WIFI_PASSWORD = "your_password_here";
 
    ```
 
