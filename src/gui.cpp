@@ -323,7 +323,7 @@ void create_system_monitor_gui()
     lv_obj_set_style_bg_opa(left_col, LV_OPA_0, 0);
     lv_obj_set_style_border_width(left_col, 0, 0);
     lv_obj_set_flex_flow(left_col, LV_FLEX_FLOW_COLUMN);
-    lv_obj_set_flex_align(left_col, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
+    lv_obj_set_flex_align(left_col, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
 
     // Set up right column
     lv_obj_set_size(right_col, 158, 240);
@@ -331,7 +331,7 @@ void create_system_monitor_gui()
     lv_obj_set_style_bg_opa(right_col, LV_OPA_0, 0);
     lv_obj_set_style_border_width(right_col, 0, 0);
     lv_obj_set_flex_flow(right_col, LV_FLEX_FLOW_COLUMN);
-    lv_obj_set_flex_align(right_col, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
+    lv_obj_set_flex_align(right_col, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
 
     // Create arcs with initial text
     cpu_arc_obj = create_arc(left_col, "CPU\n--\n-- cores", theme->cpu_color);

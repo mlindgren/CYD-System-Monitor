@@ -21,7 +21,7 @@ void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color
 void init_display()
 {
     tft.begin();
-    tft.setRotation(1);
+    tft.setRotation(3);
     tft.initDMA();
     tft.fillScreen(TFT_BLACK);
 
