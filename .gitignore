@@ -1,0 +1,7 @@
+.pio
+.DS_Store
+.vscode
+.cursorrules
+.cursorignore
+src/credentials.h
+platformio.ini
