@@ -31,16 +31,7 @@ A sleek system monitoring display powered by ESP32 that shows real-time system m
 - TFT display compatible with TFT_eSPI library
   - I'm using this cheap yellow display with ESP32 built in: [aliexpress](https://s.click.aliexpress.com/e/_olrdG2w)
   - The settings in this project are for this display.
-
-- PlatformIO
 - Glances server running on the target system
-- Arduino framework
-- Required libraries (automatically managed by PlatformIO):
-  - LVGL
-  - TFT_eSPI
-  - ArduinoJson
-  - ESP32WebServer
-  - Preferences
 
 ## Setup
 
