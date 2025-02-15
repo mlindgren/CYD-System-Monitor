@@ -45,8 +45,7 @@ ArcWithLabel create_arc(lv_obj_t *parent, const char *text, lv_color_t color)
     lv_obj_set_size(cont, 90, 90);
     lv_obj_set_style_pad_all(cont, 0, 0);
     lv_obj_center(cont);
-    
-    // Set up flex layout
+
     lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_flex_align(cont, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
     lv_obj_set_style_pad_row(cont, 2, 0);
@@ -128,6 +127,10 @@ lv_obj_t *create_compact_label(lv_obj_t *parent, const char *text, const ThemeCo
         return btn;
     }
 
+    if (!strstr(text, LV_SYMBOL_DOWNLOAD) || !strstr(text, LV_SYMBOL_UPLOAD)) {
+        lv_obj_set_flex_flow(btn, LV_FLEX_FLOW_ROW);
+        lv_obj_set_flex_align(btn, LV_FLEX_ALIGN_SPACE_BETWEEN, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    }
 
     // For temperature label, don't set the theme color initially
     bool is_temp = strstr(text, "Temp:") != NULL;
@@ -145,7 +148,6 @@ lv_obj_t *create_compact_label(lv_obj_t *parent, const char *text, const ThemeCo
     lv_label_set_text(icon_label, icon);
     lv_obj_set_style_text_font(icon_label, &lv_font_montserrat_14, 0);
     lv_obj_set_style_text_color(icon_label, theme->text_color, 0);
-    lv_obj_align(icon_label, LV_ALIGN_LEFT_MID, 5, 0);
 
     lv_obj_t *text_label = lv_label_create(btn);
     if (space_pos) {
@@ -158,7 +160,6 @@ lv_obj_t *create_compact_label(lv_obj_t *parent, const char *text, const ThemeCo
     if (!strstr(text, "Temp:")) {  // Only set theme color if it's NOT a temperature label
         lv_obj_set_style_text_color(text_label, theme->text_color, 0);
     }
-    lv_obj_align(text_label, LV_ALIGN_RIGHT_MID, -5, 0);
     lv_obj_set_user_data(btn, text_label);
 
     return btn;
@@ -226,7 +227,6 @@ void update_arc_label(lv_obj_t *label, const char *text)
 {
     if (!label || !text) return;
     lv_label_set_text(label, text);
-    lv_obj_center(label);
 }
 
 void applyTheme(bool darkMode) {
@@ -334,10 +334,10 @@ void create_system_monitor_gui()
     lv_obj_set_flex_align(right_col, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
 
     // Create arcs with initial text
-    cpu_arc_obj = create_arc(left_col, "CPU\n--\n-- cores", theme->cpu_color);
+    cpu_arc_obj = create_arc(left_col, "CPU", theme->cpu_color);
     if (!cpu_arc_obj.arc || !cpu_arc_obj.label) return;  // Safety check
 
-    ram_arc_obj = create_arc(right_col, "RAM\n--\n-- GB", theme->ram_color);
+    ram_arc_obj = create_arc(right_col, "RAM", theme->ram_color);
     if (!ram_arc_obj.arc || !ram_arc_obj.label) return;  // Safety check
 
     // Create other labels with safety checks
