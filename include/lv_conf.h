@@ -688,6 +688,7 @@
 
 /*Music player demo*/
 #define LV_USE_DEMO_MUSIC 0
+
 #if LV_USE_DEMO_MUSIC
 # define LV_DEMO_MUSIC_SQUARE       0
 # define LV_DEMO_MUSIC_LANDSCAPE    0
