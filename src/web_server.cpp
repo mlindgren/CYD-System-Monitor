@@ -592,6 +592,10 @@ const char INDEX_HTML[] PROGMEM = R"rawliteral(
                             <input type="color" id="bgColor" onchange="updateThemeColor('bg_color', this.value)">
                         </div>
                         <div class="color-picker">
+                            <label>Card Background</label>
+                            <input type="color" id="cardBgColor" onchange="updateThemeColor('card_bg_color', this.value)">
+                        </div>
+                        <div class="color-picker">
                             <label>Text</label>
                             <input type="color" id="textColor" onchange="updateThemeColor('text_color', this.value)">
                         </div>
@@ -603,6 +607,11 @@ const char INDEX_HTML[] PROGMEM = R"rawliteral(
                             <label>RAM Ring</label>
                             <input type="color" id="ramColor" onchange="updateThemeColor('ram_color', this.value)">
                         </div>
+                        <div class="color-picker">
+                            <label>Border</label>
+                            <input type="color" id="borderColor" onchange="updateThemeColor('border_color', this.value)">
+                        </div>
+        
                         <button class="btn btn-success" onclick="resetTheme()">
                             <i class="ri-refresh-line"></i> Reset Theme
                         </button>
@@ -735,7 +744,7 @@ const char INDEX_HTML[] PROGMEM = R"rawliteral(
         function updateThemeColor(property, value) {
             const darkMode = document.getElementById('darkMode').checked;
             const color = parseInt(value.substring(1), 16);
-            
+
             fetch('/settings', {
                 method: 'POST',
                 headers: {
@@ -756,9 +765,11 @@ const char INDEX_HTML[] PROGMEM = R"rawliteral(
                 .then(data => {
                     const pickers = {
                         'bg_color': 'bgColor',
+                        'card_bg_color': 'cardBgColor',
                         'text_color': 'textColor',
                         'cpu_color': 'cpuColor',
-                        'ram_color': 'ramColor'
+                        'ram_color': 'ramColor',
+                        'border_color': 'borderColor'
                     };
                     
                     Object.entries(pickers).forEach(([key, id]) => {
@@ -967,7 +978,21 @@ void handleGetSettings() {
         (uint8_t)((color >> 8) & 0xFF),
         (uint8_t)(color & 0xFF));
     doc["ramColor"] = hexColor;
+
+    color = lv_color_to32(theme.border_color);
+    sprintf(hexColor, "#%02X%02X%02X", 
+        (uint8_t)((color >> 16) & 0xFF),
+        (uint8_t)((color >> 8) & 0xFF),
+        (uint8_t)(color & 0xFF));
+    doc["borderColor"] = hexColor;
     
+    color = lv_color_to32(theme.card_bg_color);
+    sprintf(hexColor, "#%02X%02X%02X", 
+        (uint8_t)((color >> 16) & 0xFF),
+        (uint8_t)((color >> 8) & 0xFF),
+        (uint8_t)(color & 0xFF));
+    doc["cardBgColor"] = hexColor;
+
     doc["darkMode"] = SettingsManager::getDarkMode();
     
     // Add these lines to the existing function
@@ -1002,7 +1027,12 @@ void handleUpdateSettings() {
         if (doc.containsKey("ram_color")) {
             SettingsManager::updateThemeColor("ram_color", doc["ram_color"].as<uint32_t>());
         }
-        
+        if (doc.containsKey("border_color")) {
+            SettingsManager::updateThemeColor("border_color", doc["border_color"].as<uint32_t>());
+        }
+        if (doc.containsKey("card_bg_color")) {
+            SettingsManager::updateThemeColor("card_bg_color", doc["card_bg_color"].as<uint32_t>());
+        }
         // Add these conditions to the existing if block
         if (doc.containsKey("glances_host")) {
             SettingsManager::setGlancesHost(doc["glances_host"].as<String>());
@@ -1010,7 +1040,6 @@ void handleUpdateSettings() {
         if (doc.containsKey("glances_port")) {
             SettingsManager::setGlancesPort(doc["glances_port"].as<uint16_t>());
         }
-        
         server.send(200, "application/json", "{\"status\":\"success\"}");
     } else {
         server.send(400, "application/json", "{\"status\":\"error\",\"message\":\"Invalid JSON\"}");

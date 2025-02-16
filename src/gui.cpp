@@ -83,10 +83,10 @@ lv_obj_t *create_button_label(lv_obj_t *parent, const char *text, const ThemeCol
     lv_obj_t *btn = lv_btn_create(parent);
     lv_obj_set_size(btn, 145, 30);
     lv_obj_set_style_radius(btn, 5, 0);
-    lv_obj_set_style_bg_color(btn, lv_color_darken(theme->bg_color, LV_OPA_10), 0);
+    lv_obj_set_style_bg_color(btn, theme->card_bg_color, 0);
     lv_obj_set_style_bg_opa(btn, LV_OPA_50, 0);
     lv_obj_set_style_border_width(btn, 1, 0);
-    lv_obj_set_style_border_color(btn, lv_color_darken(theme->bg_color, LV_OPA_30), 0);
+    lv_obj_set_style_border_color(btn, theme->border_color, 0);
     lv_obj_set_style_shadow_width(btn, 5, 0);
     lv_obj_set_style_shadow_color(btn, lv_color_darken(theme->bg_color, LV_OPA_30), 0);
     lv_obj_set_style_pad_all(btn, 5, 0);
@@ -105,10 +105,10 @@ lv_obj_t *create_compact_label(lv_obj_t *parent, const char *text, const ThemeCo
     lv_obj_t *btn = lv_obj_create(parent);
     lv_obj_set_size(btn, 154, LV_SIZE_CONTENT);
     lv_obj_set_style_radius(btn, 5, 0);
-    lv_obj_set_style_bg_color(btn, lv_color_darken(theme->bg_color, LV_OPA_10), 0);
+    lv_obj_set_style_bg_color(btn, theme->card_bg_color, 0);
     lv_obj_set_style_bg_opa(btn, LV_OPA_50, 0);
     lv_obj_set_style_border_width(btn, 1, 0);
-    lv_obj_set_style_border_color(btn, lv_color_hex(0x404040), 0);
+    lv_obj_set_style_border_color(btn, theme->border_color, 0);
     lv_obj_set_style_shadow_width(btn, 5, 0);
     lv_obj_set_style_shadow_color(btn, lv_color_darken(theme->bg_color, LV_OPA_30), 0);
     lv_obj_set_style_pad_all(btn, 5, 0);
@@ -271,6 +271,10 @@ void applyTheme(bool darkMode) {
 
     for (lv_obj_t* label : compact_labels) {
         if (label) {
+            // Update the border color and background color
+            lv_obj_set_style_border_color(label, theme.border_color, 0);
+            lv_obj_set_style_bg_color(label, theme.card_bg_color, 0);
+
             // Update the icon label (first child)
             lv_obj_t* icon_label = lv_obj_get_child(label, 0);
             if (icon_label) {
@@ -335,10 +339,10 @@ void create_system_monitor_gui()
 
     // Create arcs with initial text
     cpu_arc_obj = create_arc(left_col, "CPU", theme->cpu_color);
-    if (!cpu_arc_obj.arc || !cpu_arc_obj.label) return;  // Safety check
+    if (!cpu_arc_obj.arc || !cpu_arc_obj.label) return;
 
     ram_arc_obj = create_arc(right_col, "RAM", theme->ram_color);
-    if (!ram_arc_obj.arc || !ram_arc_obj.label) return;  // Safety check
+    if (!ram_arc_obj.arc || !ram_arc_obj.label) return;
 
     // Create other labels with safety checks
     temp_label = create_compact_label(left_col, LV_SYMBOL_WARNING " Temp: -- °C", theme);

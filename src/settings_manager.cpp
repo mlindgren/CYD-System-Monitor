@@ -35,6 +35,10 @@ void SettingsManager::begin() {
         uint32_t color = preferences.getUInt("bg_color", 0);
         mutable_dark_theme.bg_color = lv_color_hex(color);
     }
+    if (preferences.isKey("card_bg_color")) {
+        uint32_t color = preferences.getUInt("card_bg_color", 0);
+        mutable_dark_theme.card_bg_color = lv_color_hex(color);
+    }
     if (preferences.isKey("text_color")) {
         uint32_t color = preferences.getUInt("text_color", 0);
         mutable_dark_theme.text_color = lv_color_hex(color);
@@ -46,6 +50,10 @@ void SettingsManager::begin() {
     if (preferences.isKey("ram_color")) {
         uint32_t color = preferences.getUInt("ram_color", 0);
         mutable_dark_theme.ram_color = lv_color_hex(color);
+    }
+    if (preferences.isKey("border_color")) {
+        uint32_t color = preferences.getUInt("border_color", 0);
+        mutable_dark_theme.border_color = lv_color_hex(color);
     }
 
     if (themeCallback) {
@@ -76,6 +84,10 @@ void SettingsManager::updateThemeColor(const char* colorName, uint32_t color) {
         theme.bg_color = lv_color_hex(color);
         preferences.putUInt("bg_color", color);
     }
+    else if (strcmp(colorName, "card_bg_color") == 0) {
+        theme.card_bg_color = lv_color_hex(color);
+        preferences.putUInt("card_bg_color", color);
+    }
     else if (strcmp(colorName, "text_color") == 0) {
         theme.text_color = lv_color_hex(color);
         preferences.putUInt("text_color", color);
@@ -87,6 +99,10 @@ void SettingsManager::updateThemeColor(const char* colorName, uint32_t color) {
     else if (strcmp(colorName, "ram_color") == 0) {
         theme.ram_color = lv_color_hex(color);
         preferences.putUInt("ram_color", color);
+    }
+    else if (strcmp(colorName, "border_color") == 0) {
+        theme.border_color = lv_color_hex(color);
+        preferences.putUInt("border_color", color);
     }
 
     // Update the display
@@ -101,9 +117,11 @@ const ThemeColors& SettingsManager::getCurrentTheme() {
 
 void SettingsManager::clearSavedColors() {
     preferences.remove("bg_color");
+    preferences.remove("card_bg_color");
     preferences.remove("text_color");
     preferences.remove("cpu_color");
     preferences.remove("ram_color");
+    preferences.remove("border_color");
 }
 
 const String& SettingsManager::getGlancesHost() {
