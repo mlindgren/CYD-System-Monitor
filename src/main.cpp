@@ -8,6 +8,7 @@
 #include "settings_manager.h"
 #include "web_server.h"
 #include "credentials.h"
+#include "SPIFFS.h"
 
 void setup()
 {
@@ -45,13 +46,16 @@ void setup()
     }
 
     Serial.println("\nStep 5: WiFi connection result:");
-    if (WiFi.status() == WL_CONNECTED) {
+    if (WiFi.status() == WL_CONNECTED)
+    {
         Serial.println("  - Connected successfully!");
         Serial.print("  - Hostname: ");
         Serial.println(WiFi.getHostname());
         Serial.print("  - IP Address: ");
         Serial.println(WiFi.localIP());
-    } else {
+    }
+    else
+    {
         Serial.println("  - Connection FAILED!");
         Serial.print("  - Status code: ");
         Serial.println(WiFi.status());
@@ -62,14 +66,22 @@ void setup()
     init_display();
 
 #if LV_USE_LOG != 0
-    lv_log_register_print_cb([](const char *buf){
+    lv_log_register_print_cb([](const char *buf)
+                             {
         Serial.printf(buf);
-        Serial.flush();
-    });
+        Serial.flush(); });
 #endif
 
     create_system_monitor_gui();
     SettingsManager::begin();
+
+    // Initialize SPIFFS
+    if (!SPIFFS.begin(true))
+    {
+        Serial.println("SPIFFS Mount Failed");
+        return;
+    }
+
     setupWebServer();
 
     Serial.println("======================");

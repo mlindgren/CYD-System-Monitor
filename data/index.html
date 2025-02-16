@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1" />
+    <title>ESP32 System Monitor</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css"
+      rel="stylesheet" />
+    <link
+      href="/css/styles.css"
+      rel="stylesheet" />
+    <script src="https://bernii.github.io/gauge.js/dist/gauge.min.js"></script>
+  </head>
+  <body>
+    <div class="dashboard">
+      <div class="loader-container">
+        <div class="loader"></div>
+        <div class="loader-text">Connecting to ESP32...</div>
+      </div>
+      <header class="header">
+        <h1><i class="ri-cpu-line"></i> ESP32 System Monitor</h1>
+        <div class="theme-toggle">
+          <span><i class="ri-sun-line"></i></span>
+          <label class="switch">
+            <input
+              type="checkbox"
+              id="darkMode"
+              onchange="updateTheme()" />
+            <span class="slider"></span>
+          </label>
+          <span><i class="ri-moon-line"></i></span>
+        </div>
+      </header>
+
+      <div class="toolbar">
+        <div class="glances-settings">
+          <div class="server-info">
+            <div class="server-display">
+              <i class="ri-server-line"></i>
+              <span id="serverDisplay">Not configured</span>
+              <button
+                class="edit-button"
+                onclick="toggleServerEdit()">
+                <i class="ri-edit-line"></i>
+                Edit Glances Server
+              </button>
+            </div>
+            <div class="server-edit">
+              <button
+                class="close-button"
+                onclick="toggleServerEdit()">
+                <i class="ri-close-line"></i>
+              </button>
+              <input
+                type="text"
+                id="glancesHost"
+                class="text-input"
+                placeholder="Glances IP" />
+              <input
+                type="number"
+                id="glancesPort"
+                class="text-input"
+                placeholder="Port" />
+              <button
+                class="btn btn-success"
+                onclick="saveGlancesSettings()">
+                <i class="ri-save-line"></i> Save
+              </button>
+            </div>
+          </div>
+        </div>
+        <button
+          class="btn btn-danger"
+          onclick="restartESP()">
+          <i class="ri-restart-line"></i> Restart ESP32
+        </button>
+      </div>
+
+      <div class="main-content">
+        <div class="charts-row">
+          <div class="chart-card">
+            <h2><i class="ri-cpu-line"></i> CPU Usage</h2>
+            <div class="chart-container">
+              <canvas id="cpuChart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <h2><i class="ri-database-2-line"></i> Memory</h2>
+            <div class="chart-container">
+              <canvas id="memoryChart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <h2><i class="ri-temp-hot-line"></i> Temperature</h2>
+            <div class="chart-container gauge-container">
+              <canvas id="tempGauge"></canvas>
+              <div
+                class="gauge-value"
+                id="tempValue">
+                --°C
+              </div>
+            </div>
+          </div>
+          <div class="chart-card">
+            <h2><i class="ri-wifi-line"></i> WiFi Signal</h2>
+            <div class="chart-container signal-container">
+              <div class="signal-meter">
+                <div class="signal-bar"></div>
+                <div class="signal-bar"></div>
+                <div class="signal-bar"></div>
+                <div class="signal-bar"></div>
+              </div>
+              <div
+                class="signal-value"
+                id="signalValue">
+                -- dBm
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-container">
+          <div class="card system-card">
+            <h2><i class="ri-information-line"></i> System</h2>
+            <div class="info-grid">
+              <div class="info-item">
+                <div class="info-label"><i class="ri-cpu-line"></i> Model</div>
+                <div
+                  class="info-value"
+                  id="chipModel">
+                  ---
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="ri-cpu-line"></i> Revision</div>
+                <div
+                  class="info-value"
+                  id="chipRevision">
+                  ---
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="ri-code-s-slash-line"></i> SDK Version</div>
+                <div
+                  class="info-value"
+                  id="sdkVersion">
+                  ---
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="ri-speed-line"></i> CPU Freq</div>
+                <div
+                  class="info-value"
+                  id="cpuFreqMHz">
+                  ---
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="ri-refresh-line"></i> Cycle Count</div>
+                <div
+                  class="info-value"
+                  id="cycleCount">
+                  ---
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="ri-fingerprint-line"></i> Efuse MAC</div>
+                <div
+                  class="info-value"
+                  id="efuseMac">
+                  ---
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="ri-temp-hot-line"></i> Temperature</div>
+                <div
+                  class="info-value"
+                  id="temperature">
+                  ---
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="ri-sensor-line"></i> Hall Sensor</div>
+                <div
+                  class="info-value"
+                  id="hallSensor">
+                  ---
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="ri-time-line"></i> Uptime</div>
+                <div
+                  class="info-value"
+                  id="uptime">
+                  ---
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="ri-error-warning-line"></i> Last Reset</div>
+                <div
+                  class="info-value"
+                  id="lastResetReason">
+                  ---
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card memory-card">
+            <h2><i class="ri-database-2-line"></i> Memory</h2>
+            <div class="info-grid">
+              <div class="info-item">
+                <div class="info-label"><i class="ri-database-2-line"></i> Total Heap</div>
+                <div
+                  class="info-value"
+                  id="totalHeap">
+                  ---
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="ri-database-2-line"></i> Free Heap</div>
+                <div
+                  class="info-value"
+                  id="freeHeap">
+                  ---
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="ri-database-2-line"></i> Min Free Heap</div>
+                <div
+                  class="info-value"
+                  id="minFreeHeap">
+                  ---
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="ri-database-2-line"></i> Max Alloc Heap</div>
+                <div
+                  class="info-value"
+                  id="maxAllocHeap">
+                  ---
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="ri-split-cells-horizontal"></i> Fragmentation</div>
+                <div
+                  class="info-value"
+                  id="heapFragmentation">
+                  ---
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="ri-database-2-line"></i> PSRAM Size</div>
+                <div
+                  class="info-value"
+                  id="psramSize">
+                  ---
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="ri-database-2-line"></i> Free PSRAM</div>
+                <div
+                  class="info-value"
+                  id="freePsram">
+                  ---
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="ri-database-2-line"></i> Min Free PSRAM</div>
+                <div
+                  class="info-value"
+                  id="minFreePsram">
+                  ---
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="ri-database-2-line"></i> Max Alloc PSRAM</div>
+                <div
+                  class="info-value"
+                  id="maxAllocPsram">
+                  ---
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card theme-card">
+            <h2><i class="ri-palette-line"></i> Theme Customization</h2>
+            <div class="theme-controls">
+              <p class="theme-warning">
+                <i class="ri-error-warning-line"></i> Theme changes may be slow due to ESP32 processing.
+              </p>
+              <div class="color-picker">
+                <label>Background</label>
+                <input
+                  type="color"
+                  id="bgColor"
+                  onchange="updateThemeColor('bg_color', this.value)" />
+              </div>
+              <div class="color-picker">
+                <label>Card Background</label>
+                <input
+                  type="color"
+                  id="cardBgColor"
+                  onchange="updateThemeColor('card_bg_color', this.value)" />
+              </div>
+              <div class="color-picker">
+                <label>Text</label>
+                <input
+                  type="color"
+                  id="textColor"
+                  onchange="updateThemeColor('text_color', this.value)" />
+              </div>
+              <div class="color-picker">
+                <label>CPU Ring</label>
+                <input
+                  type="color"
+                  id="cpuColor"
+                  onchange="updateThemeColor('cpu_color', this.value)" />
+              </div>
+              <div class="color-picker">
+                <label>RAM Ring</label>
+                <input
+                  type="color"
+                  id="ramColor"
+                  onchange="updateThemeColor('ram_color', this.value)" />
+              </div>
+              <div class="color-picker">
+                <label>Border</label>
+                <input
+                  type="color"
+                  id="borderColor"
+                  onchange="updateThemeColor('border_color', this.value)" />
+              </div>
+
+              <button
+                class="btn btn-success"
+                style="text-align: center; width: 100%"
+                onclick="resetTheme()">
+                <i class="ri-refresh-line"></i> Reset Theme
+              </button>
+            </div>
+          </div>
+          <div class="card flash-card">
+            <h2><i class="ri-sd-card-line"></i> Flash</h2>
+            <div class="info-grid">
+              <div class="info-item">
+                <div class="info-label"><i class="ri-sd-card-line"></i> Flash Size</div>
+                <div
+                  class="info-value"
+                  id="flashChipSize">
+                  ---
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="ri-speed-line"></i> Flash Speed</div>
+                <div
+                  class="info-value"
+                  id="flashChipSpeed">
+                  ---
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="ri-settings-line"></i> Flash Mode</div>
+                <div
+                  class="info-value"
+                  id="flashChipMode">
+                  ---
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="ri-file-code-line"></i> Sketch Size</div>
+                <div
+                  class="info-value"
+                  id="sketchSize">
+                  ---
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="ri-fingerprint-line"></i> Sketch MD5</div>
+                <div
+                  class="info-value"
+                  id="sketchMD5">
+                  ---
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="ri-hard-drive-line"></i> Free Space</div>
+                <div
+                  class="info-value"
+                  id="freeSketchSpace">
+                  ---
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card network-card">
+            <h2><i class="ri-wifi-line"></i> Network</h2>
+            <div class="info-grid">
+              <div class="info-item">
+                <div class="info-label"><i class="ri-wifi-line"></i> SSID</div>
+                <div
+                  class="info-value"
+                  id="wifiSSID">
+                  ---
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="ri-broadcast-line"></i> BSSID</div>
+                <div
+                  class="info-value"
+                  id="wifiBSSID">
+                  ---
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="ri-eye-off-line"></i> Hidden</div>
+                <div
+                  class="info-value"
+                  id="isHidden">
+                  ---
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="ri-refresh-line"></i> Auto Reconnect</div>
+                <div
+                  class="info-value"
+                  id="autoReconnect">
+                  ---
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="ri-computer-line"></i> Hostname</div>
+                <div
+                  class="info-value"
+                  id="hostname">
+                  ---
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="ri-wifi-line"></i> WiFi Mode</div>
+                <div
+                  class="info-value"
+                  id="wifiMode">
+                  ---
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="ri-ip-fill"></i> IP Address</div>
+                <div
+                  class="info-value"
+                  id="ipAddress">
+                  ---
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="ri-mac-line"></i> MAC Address</div>
+                <div
+                  class="info-value"
+                  id="macAddress">
+                  ---
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="ri-global-line"></i> DNS Server</div>
+                <div
+                  class="info-value"
+                  id="dnsIP">
+                  ---
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="ri-router-line"></i> Gateway</div>
+                <div
+                  class="info-value"
+                  id="gatewayIP">
+                  ---
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label"><i class="ri-filter-line"></i> Subnet Mask</div>
+                <div
+                  class="info-value"
+                  id="subnetMask">
+                  ---
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <a
+        href="https://github.com/iamlite/ESP32-Yellow-Display-System-Monitor"
+        target="_blank">
+        <i class="ri-github-line"></i> Star on GitHub
+      </a>
+    </div>
+
+    <script src="/js/main.js"></script>
+  </body>
+</html>
