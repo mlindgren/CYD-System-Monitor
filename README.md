@@ -2,7 +2,7 @@
 
 A sleek system monitoring display powered by ESP32 that shows real-time system metrics from a Glances server. Features a customizable UI with dark/light theme support using LVGL graphics library.
 
-![My Unraid using it](Images/pic.jpeg)
+![My Unraid using it](Images/device.jpeg)
 
 ## Features
 
