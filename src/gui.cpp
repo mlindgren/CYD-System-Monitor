@@ -3,7 +3,6 @@
 #include <Arduino.h>
 #include <stdio.h>
 
-// Global UI element definitions used by glances_api.cpp
 lv_obj_t *cpu_label = NULL;
 lv_obj_t *ram_label = NULL;
 lv_obj_t *disk_label = NULL;
@@ -17,14 +16,15 @@ lv_obj_t *cache_label = NULL;
 ArcWithLabel cpu_arc_obj = {NULL, NULL};
 ArcWithLabel ram_arc_obj = {NULL, NULL};
 
-// Implementation for creating an arc with a label
 ArcWithLabel create_arc(lv_obj_t *parent, const char *text, lv_color_t color)
 {
     ArcWithLabel result = {nullptr, nullptr};
-    if (!parent) return result;
+    if (!parent)
+        return result;
 
     lv_obj_t *arc = lv_arc_create(parent);
-    if (!arc) return result;
+    if (!arc)
+        return result;
 
     lv_obj_set_size(arc, 110, 110);
     lv_arc_set_rotation(arc, 135);
@@ -39,7 +39,6 @@ ArcWithLabel create_arc(lv_obj_t *parent, const char *text, lv_color_t color)
     lv_obj_remove_style(arc, NULL, LV_PART_KNOB);
     lv_obj_clear_flag(arc, LV_OBJ_FLAG_CLICKABLE);
 
-    // Create a container for the labels
     lv_obj_t *cont = lv_obj_create(arc);
     lv_obj_remove_style_all(cont);
     lv_obj_set_size(cont, 90, 90);
@@ -50,7 +49,6 @@ ArcWithLabel create_arc(lv_obj_t *parent, const char *text, lv_color_t color)
     lv_obj_set_flex_align(cont, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
     lv_obj_set_style_pad_row(cont, 2, 0);
 
-    // Create three labels for different sized text
     lv_obj_t *title = lv_label_create(cont);
     lv_obj_set_style_text_font(title, &lv_font_montserrat_14, 0);
     lv_obj_set_style_text_color(title, color, 0);
@@ -66,7 +64,6 @@ ArcWithLabel create_arc(lv_obj_t *parent, const char *text, lv_color_t color)
     lv_obj_set_style_text_color(info, lv_color_hex(0x808080), 0);
     lv_label_set_text(info, "--");
 
-    // Store all three labels in the user data
     lv_obj_t **labels = (lv_obj_t **)lv_mem_alloc(3 * sizeof(lv_obj_t *));
     labels[0] = title;
     labels[1] = value;
@@ -113,9 +110,8 @@ lv_obj_t *create_compact_label(lv_obj_t *parent, const char *text, const ThemeCo
     lv_obj_set_style_shadow_color(btn, lv_color_darken(theme->bg_color, LV_OPA_30), 0);
     lv_obj_set_style_pad_all(btn, 5, 0);
 
-    // Check if this is a network label (contains both download and upload symbols)
-    if (strstr(text, LV_SYMBOL_DOWNLOAD) && strstr(text, LV_SYMBOL_UPLOAD)) {
-        // For network, create a single centered label
+    if (strstr(text, LV_SYMBOL_DOWNLOAD) && strstr(text, LV_SYMBOL_UPLOAD))
+    {
         lv_obj_t *text_label = lv_label_create(btn);
         lv_label_set_text(text_label, text);
         lv_obj_set_style_text_font(text_label, &lv_font_montserrat_14, 0);
@@ -127,22 +123,25 @@ lv_obj_t *create_compact_label(lv_obj_t *parent, const char *text, const ThemeCo
         return btn;
     }
 
-    if (!strstr(text, LV_SYMBOL_DOWNLOAD) || !strstr(text, LV_SYMBOL_UPLOAD)) {
+    if (!strstr(text, LV_SYMBOL_DOWNLOAD) || !strstr(text, LV_SYMBOL_UPLOAD))
+    {
         lv_obj_set_flex_flow(btn, LV_FLEX_FLOW_ROW);
         lv_obj_set_flex_align(btn, LV_FLEX_ALIGN_SPACE_BETWEEN, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
     }
 
-    // For temperature label, don't set the theme color initially
     bool is_temp = strstr(text, "Temp:") != NULL;
 
     lv_obj_t *icon_label = lv_label_create(btn);
     char icon[32];
     const char *space_pos = strchr(text, ' ');
-    if (space_pos) {
+    if (space_pos)
+    {
         size_t icon_len = space_pos - text;
         strncpy(icon, text, icon_len);
         icon[icon_len] = '\0';
-    } else {
+    }
+    else
+    {
         strcpy(icon, "");
     }
     lv_label_set_text(icon_label, icon);
@@ -150,14 +149,18 @@ lv_obj_t *create_compact_label(lv_obj_t *parent, const char *text, const ThemeCo
     lv_obj_set_style_text_color(icon_label, theme->text_color, 0);
 
     lv_obj_t *text_label = lv_label_create(btn);
-    if (space_pos) {
+    if (space_pos)
+    {
         const char *text_start = space_pos + 1;
         lv_label_set_text(text_label, text_start);
-    } else {
+    }
+    else
+    {
         lv_label_set_text(text_label, "");
     }
     lv_obj_set_style_text_font(text_label, &lv_font_montserrat_14, 0);
-    if (!strstr(text, "Temp:")) {  // Only set theme color if it's NOT a temperature label
+    if (!strstr(text, "Temp:"))
+    {
         lv_obj_set_style_text_color(text_label, theme->text_color, 0);
     }
     lv_obj_set_user_data(btn, text_label);
@@ -169,27 +172,37 @@ void update_compact_label(lv_obj_t *btn, const char *text)
 {
     lv_obj_t *text_label = (lv_obj_t *)lv_obj_get_user_data(btn);
 
-    if (strstr(text, LV_SYMBOL_DOWNLOAD) && strstr(text, LV_SYMBOL_UPLOAD)) {
+    if (strstr(text, LV_SYMBOL_DOWNLOAD) && strstr(text, LV_SYMBOL_UPLOAD))
+    {
         lv_label_set_text(text_label, text);
         return;
     }
 
-    if (strstr(text, "Temp:")) {
+    if (strstr(text, "Temp:"))
+    {
         const char *temp_start = strstr(text, "Temp:") + 5;
         int temperature = 0;
 
-        if (sscanf(temp_start, "%d", &temperature) == 1) {
+        if (sscanf(temp_start, "%d", &temperature) == 1)
+        {
             lv_color_t temp_color;
-            if (temperature < 40) {
+            if (temperature < 40)
+            {
                 temp_color = lv_color_hex(0x00FF44);
-            } else if (temperature < 50) {
+            }
+            else if (temperature < 50)
+            {
                 temp_color = lv_color_hex(0xFFAA00);
-            } else {
+            }
+            else
+            {
                 temp_color = lv_color_hex(0xFF4444);
             }
 
             lv_obj_set_style_text_color(text_label, temp_color, 0);
-        } else {
+        }
+        else
+        {
             Serial.println("Failed to parse temperature!");
         }
 
@@ -198,7 +211,8 @@ void update_compact_label(lv_obj_t *btn, const char *text)
     }
 
     const char *space_pos = strchr(text, ' ');
-    if (space_pos) {
+    if (space_pos)
+    {
         const char *text_start = space_pos + 1;
         lv_label_set_text(text_label, text_start);
     }
@@ -206,10 +220,11 @@ void update_compact_label(lv_obj_t *btn, const char *text)
 
 void set_arc_value_animated(lv_obj_t *arc, int32_t value, uint32_t duration)
 {
-    if (!arc) return;
+    if (!arc)
+        return;
 
-    // Ensure value is within valid range
-    value = (value < 0) ? 0 : (value > 100) ? 100 : value;
+    value = (value < 0) ? 0 : (value > 100) ? 100
+                                            : value;
 
     static lv_anim_t a;
     lv_anim_init(&a);
@@ -222,35 +237,39 @@ void set_arc_value_animated(lv_obj_t *arc, int32_t value, uint32_t duration)
     lv_anim_start(&a);
 }
 
-
 void update_arc_label(lv_obj_t *label, const char *text)
 {
-    if (!label || !text) return;
+    if (!label || !text)
+        return;
     lv_label_set_text(label, text);
 }
 
-void applyTheme(bool darkMode) {
-    const ThemeColors& theme = SettingsManager::getCurrentTheme();
+void applyTheme(bool darkMode)
+{
+    const ThemeColors &theme = SettingsManager::getCurrentTheme();
     lv_obj_set_style_bg_color(lv_scr_act(), theme.bg_color, 0);
 
-    if (cpu_arc_obj.arc) {
+    if (cpu_arc_obj.arc)
+    {
         lv_obj_set_style_arc_color(cpu_arc_obj.arc, theme.cpu_color, LV_PART_INDICATOR);
         lv_obj_set_style_arc_color(cpu_arc_obj.arc, lv_color_darken(theme.cpu_color, LV_OPA_30), LV_PART_MAIN);
         lv_obj_t **labels = (lv_obj_t **)lv_obj_get_user_data(cpu_arc_obj.arc);
-        if (labels) {
+        if (labels)
+        {
             lv_obj_set_style_text_color(labels[0], theme.text_color, 0);
             lv_obj_set_style_text_color(labels[1], theme.text_color, 0);
             lv_obj_set_style_text_color(labels[2], lv_color_hex(0x808080), 0);
         }
     }
-    
-    // Update RAM arc and its labels
-    if (ram_arc_obj.arc) {
+
+    if (ram_arc_obj.arc)
+    {
         lv_obj_set_style_arc_color(ram_arc_obj.arc, theme.ram_color, LV_PART_INDICATOR);
         lv_obj_set_style_arc_color(ram_arc_obj.arc, lv_color_darken(theme.ram_color, LV_OPA_30), LV_PART_MAIN);
-        
+
         lv_obj_t **labels = (lv_obj_t **)lv_obj_get_user_data(ram_arc_obj.arc);
-        if (labels) {
+        if (labels)
+        {
 
             lv_obj_set_style_text_color(labels[0], theme.text_color, 0);
             lv_obj_set_style_text_color(labels[1], theme.text_color, 0);
@@ -259,33 +278,30 @@ void applyTheme(bool darkMode) {
         }
     }
 
-    // Update all compact labels
-    lv_obj_t* compact_labels[] = {
+    lv_obj_t *compact_labels[] = {
         temp_label,
         load_label,
         uptime_label,
         disk_label,
         cache_label,
-        network_label
-    };
+        network_label};
 
-    for (lv_obj_t* label : compact_labels) {
-        if (label) {
-            // Update the border color and background color
+    for (lv_obj_t *label : compact_labels)
+    {
+        if (label)
+        {
             lv_obj_set_style_border_color(label, theme.border_color, 0);
             lv_obj_set_style_bg_color(label, theme.card_bg_color, 0);
-
-            // Update the icon label (first child)
-            lv_obj_t* icon_label = lv_obj_get_child(label, 0);
-            if (icon_label) {
+            lv_obj_t *icon_label = lv_obj_get_child(label, 0);
+            if (icon_label)
+            {
                 lv_obj_set_style_text_color(icon_label, theme.text_color, 0);
             }
-
-            // Update the text label (second child or stored in user data)
-            lv_obj_t* text_label = (lv_obj_t*)lv_obj_get_user_data(label);
-            if (text_label) {
-                // Skip temperature color as it's handled separately in update_compact_label
-                if (!strstr(lv_label_get_text(text_label), "°C")) {
+            lv_obj_t *text_label = (lv_obj_t *)lv_obj_get_user_data(label);
+            if (text_label)
+            {
+                if (!strstr(lv_label_get_text(text_label), "°C"))
+                {
                     lv_obj_set_style_text_color(text_label, theme.text_color, 0);
                 }
             }
@@ -293,18 +309,14 @@ void applyTheme(bool darkMode) {
     }
 }
 
-//
-// The main GUI creation function.
-//
-
 void create_system_monitor_gui()
 {
     const ThemeColors *theme = DARK_MODE ? &dark_theme : &light_theme;
     lv_obj_set_style_bg_color(lv_scr_act(), theme->bg_color, 0);
 
-    // Create main container
     lv_obj_t *main_cont = lv_obj_create(lv_scr_act());
-    if (!main_cont) return;  // Safety check
+    if (!main_cont)
+        return;
 
     lv_obj_set_size(main_cont, 320, 240);
     lv_obj_set_style_pad_all(main_cont, 2, 0);
@@ -314,14 +326,14 @@ void create_system_monitor_gui()
     lv_obj_set_flex_align(main_cont, LV_FLEX_ALIGN_SPACE_BETWEEN, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START);
     lv_obj_clear_flag(main_cont, LV_OBJ_FLAG_SCROLLABLE);
 
-    // Create columns
     lv_obj_t *left_col = lv_obj_create(main_cont);
-    if (!left_col) return;  // Safety check
+    if (!left_col)
+        return;
 
     lv_obj_t *right_col = lv_obj_create(main_cont);
-    if (!right_col) return;  // Safety check
+    if (!right_col)
+        return;
 
-    // Set up left column
     lv_obj_set_size(left_col, 158, 240);
     lv_obj_set_style_pad_all(left_col, 2, 0);
     lv_obj_set_style_bg_opa(left_col, LV_OPA_0, 0);
@@ -329,7 +341,6 @@ void create_system_monitor_gui()
     lv_obj_set_flex_flow(left_col, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_flex_align(left_col, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
 
-    // Set up right column
     lv_obj_set_size(right_col, 158, 240);
     lv_obj_set_style_pad_all(right_col, 2, 0);
     lv_obj_set_style_bg_opa(right_col, LV_OPA_0, 0);
@@ -337,35 +348,39 @@ void create_system_monitor_gui()
     lv_obj_set_flex_flow(right_col, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_flex_align(right_col, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
 
-    // Create arcs with initial text
     cpu_arc_obj = create_arc(left_col, "CPU", theme->cpu_color);
-    if (!cpu_arc_obj.arc || !cpu_arc_obj.label) return;
+    if (!cpu_arc_obj.arc || !cpu_arc_obj.label)
+        return;
 
     ram_arc_obj = create_arc(right_col, "RAM", theme->ram_color);
-    if (!ram_arc_obj.arc || !ram_arc_obj.label) return;
+    if (!ram_arc_obj.arc || !ram_arc_obj.label)
+        return;
 
-    // Create other labels with safety checks
     temp_label = create_compact_label(left_col, LV_SYMBOL_WARNING " Temp: -- °C", theme);
-    if (!temp_label) return;
+    if (!temp_label)
+        return;
 
     load_label = create_compact_label(left_col, LV_SYMBOL_CHARGE " Load: -.-", theme);
-    if (!load_label) return;
+    if (!load_label)
+        return;
 
     uptime_label = create_compact_label(left_col, LV_SYMBOL_POWER "  ---", theme);
-    if (!uptime_label) return;
+    if (!uptime_label)
+        return;
 
     disk_label = create_compact_label(right_col, LV_SYMBOL_DRIVE " Array: ---%", theme);
-    if (!disk_label) return;
+    if (!disk_label)
+        return;
 
     cache_label = create_compact_label(right_col, LV_SYMBOL_SAVE " Cache: ---%", theme);
-    if (!cache_label) return;
+    if (!cache_label)
+        return;
 
     network_label = create_compact_label(right_col, LV_SYMBOL_DOWNLOAD " --- " LV_SYMBOL_UPLOAD " ---", theme);
-    if (!network_label) return;
+    if (!network_label)
+        return;
 
-    // Register the theme callback
     SettingsManager::setThemeChangeCallback(applyTheme);
 
-    // Apply initial theme
     applyTheme(SettingsManager::getDarkMode());
 }

@@ -1,10 +1,8 @@
-// Add data arrays for the charts
 const maxDataPoints = 30
 const cpuData = Array(maxDataPoints).fill(0)
 const memoryData = Array(maxDataPoints).fill(0)
 const labels = Array(maxDataPoints).fill('')
 
-// Initialize line charts
 const cpuChart = new Chart(document.getElementById('cpuChart').getContext('2d'), {
   type: 'line',
   data: {
@@ -40,6 +38,9 @@ const cpuChart = new Chart(document.getElementById('cpuChart').getContext('2d'),
     plugins: {
       legend: {
         display: false
+      },
+      tooltip: {
+        enabled: false
       }
     }
   }
@@ -80,33 +81,30 @@ const memoryChart = new Chart(document.getElementById('memoryChart').getContext(
     plugins: {
       legend: {
         display: false
+      },
+      tooltip: {
+        enabled: false
       }
     }
   }
 })
 
-// Initialize theme state from server
 fetch('/settings')
   .then((response) => response.json())
   .then((data) => {
     const darkMode = data.darkMode
     document.getElementById('darkMode').checked = darkMode
     document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light')
-
-    // Set initial chart text colors
     const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color')
     cpuChart.options.scales.y.ticks.color = textColor
     memoryChart.options.scales.y.ticks.color = textColor
     cpuChart.update()
     memoryChart.update()
-
-    // Initialize Glances settings
     document.getElementById('glancesHost').value = data.glances_host
     document.getElementById('glancesPort').value = data.glances_port
     updateServerDisplay()
   })
 
-// Initialize gauge with Gauge.js
 const tempGauge = new Gauge(document.getElementById('tempGauge')).setOptions({
   angle: 0,
   lineWidth: 0.3,
@@ -150,11 +148,8 @@ function updateSignalStrength(dbm) {
   const value = document.getElementById('signalValue')
   value.textContent = dbm + ' dBm'
 
-  // Convert dBm to quality percentage
-  // Typical WiFi range is -50 dBm (excellent) to -90 dBm (poor)
   const quality = Math.max(0, Math.min(100, (dbm + 90) * 2.5))
 
-  // Define signal strength ranges
   const getStrengthClass = (barIndex, quality) => {
     const threshold = (barIndex + 1) * 25
     if (quality >= threshold) {
@@ -170,11 +165,7 @@ function updateSignalStrength(dbm) {
     const threshold = (index + 1) * 25
     const isActive = quality >= threshold
     bar.classList.toggle('active', isActive)
-
-    // Remove all strength classes first
     bar.classList.remove('excellent', 'good', 'fair', 'poor')
-
-    // Add appropriate strength class if active
     if (isActive) {
       bar.classList.add(getStrengthClass(index, quality))
     }
@@ -182,12 +173,13 @@ function updateSignalStrength(dbm) {
 }
 
 function updateVisualizations(data) {
-  // Update CPU chart
-  cpuData.push(parseFloat(data.cpuUsage))
+  const cpuUsage = parseFloat(data.cpuUsage)
+  cpuData.push(cpuUsage)
   cpuData.shift()
   cpuChart.update()
-
-  // Update memory chart
+  document.querySelector(
+    '.chart-card:nth-child(1) h2'
+  ).innerHTML = `<i class="ri-cpu-line"></i> CPU Usage <span class="current-value">${cpuUsage.toFixed(1)}%</span>`
   const totalHeap = parseFloat(data.totalHeap)
   const freeHeap = parseFloat(data.freeHeap)
   const usedHeap = totalHeap - freeHeap
@@ -195,13 +187,19 @@ function updateVisualizations(data) {
   memoryData.push(memoryUsage)
   memoryData.shift()
   memoryChart.update()
-
-  // Update temperature gauge
+  document.querySelector(
+    '.chart-card:nth-child(2) h2'
+  ).innerHTML = `<i class="ri-database-2-line"></i> Memory <span class="current-value">${memoryUsage.toFixed(
+    1
+  )}%</span>`
   const temp = parseFloat(data.temperature)
   tempGauge.set(temp)
-  document.getElementById('tempValue').textContent = `${temp.toFixed(1)}°C`
-
-  // Update WiFi signal strength
+  document.querySelector(
+    '.chart-card:nth-child(3) h2'
+  ).innerHTML = `<i class="ri-temp-hot-line"></i> Temperature <span class="current-value">${temp.toFixed(1)}°C</span>`
+  document.querySelector(
+    '.chart-card:nth-child(4) h2'
+  ).innerHTML = `<i class="ri-wifi-line"></i> WiFi Signal <span class="current-value">${data.wifiStrength} dBm</span>`
   updateSignalStrength(data.wifiStrength)
 }
 
@@ -209,7 +207,6 @@ function updateTheme() {
   const darkMode = document.getElementById('darkMode').checked
   document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light')
 
-  // Update chart text colors
   const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color')
   cpuChart.options.scales.y.ticks.color = textColor
   memoryChart.options.scales.y.ticks.color = textColor
@@ -301,13 +298,11 @@ function restartESP() {
 }
 
 function updateSystemInfo(data) {
-  // Update all the new fields
   Object.keys(data).forEach((key) => {
     const element = document.getElementById(key)
     if (element) {
       let value = data[key]
 
-      // Add units where appropriate
       if (key === 'cpuFreqMHz') value += ' MHz'
       if (key === 'flashChipSpeed') value += ' MHz'
       if (key.includes('Size') || key.includes('Heap') || key.includes('Space')) value += ' KB'
@@ -342,11 +337,9 @@ function updateServerDisplay() {
   }
 }
 
-// Add at the start of the file
 let dataReceived = false
 const loader = document.querySelector('.loader-container')
 
-// Modify the interval fetch
 setInterval(() => {
   fetch('/settings')
     .then((response) => response.json())
@@ -372,7 +365,6 @@ setInterval(() => {
     })
 }, 2000)
 
-// Modify the saveGlancesSettings function
 function saveGlancesSettings() {
   const host = document.getElementById('glancesHost').value
   const port = parseInt(document.getElementById('glancesPort').value)

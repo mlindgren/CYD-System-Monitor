@@ -289,6 +289,14 @@ h2 {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  justify-content: space-between;
+  text-align: center;
+  width: 100%;
+}
+
+.chart-card h2 i {
+  width: 20px;
+  text-align: center;
 }
 
 .gauge-container {
@@ -577,5 +585,22 @@ input:checked + .slider:before {
 }
 
 .loader-container.hidden {
+  display: none;
+}
+
+.current-value {
+  font-size: 0.875rem;
+  color: var(--secondary-color);
+  font-weight: 500;
+  background: var(--bg-color);
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-color);
+  min-width: 70px;
+  text-align: center;
+}
+
+#tempValue,
+.signal-value {
   display: none;
 }

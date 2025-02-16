@@ -22,6 +22,8 @@ A sleek system monitoring display powered by ESP32 that shows real-time system m
   - Glances server configuration
   - Device control and monitoring
 
+![Web UI](Images/webui.png)
+
 - Home Assistant integration:
   - REST API endpoints
   - Device status monitoring & control

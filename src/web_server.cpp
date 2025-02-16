@@ -8,30 +8,23 @@
 #include "SPIFFS.h"
 #include "FS.h"
 
-// Reference the theme variables from config.h
 extern const ThemeColors dark_theme;
 extern const ThemeColors light_theme;
-
-// Add these near the top of the file
 static unsigned long last_micros = 0;
 static float cpu_usage = 0;
 static const int SAMPLE_COUNT = 10;
 static unsigned long samples[SAMPLE_COUNT] = {0};
 static int sample_index = 0;
 
-// Improved CPU usage calculation
 void updateCPUUsage()
 {
     unsigned long current_micros = esp_timer_get_time();
 
     if (last_micros > 0)
     {
-        // Store time between calls
         unsigned long delta = current_micros - last_micros;
         samples[sample_index] = delta;
         sample_index = (sample_index + 1) % SAMPLE_COUNT;
-
-        // Calculate average and max from samples
         unsigned long sum = 0;
         unsigned long max_sample = 0;
         for (int i = 0; i < SAMPLE_COUNT; i++)
@@ -41,15 +34,8 @@ void updateCPUUsage()
                 max_sample = samples[i];
         }
         unsigned long avg = sum / SAMPLE_COUNT;
-
-        // Calculate CPU usage based on processing time
-        // Higher deltas mean more CPU time spent
         float usage = (float)avg / max_sample * 100.0;
-
-        // Smooth the transition
         cpu_usage = (cpu_usage * 0.8) + (usage * 0.2);
-
-        // Clamp values
         if (cpu_usage < 0)
             cpu_usage = 0;
         if (cpu_usage > 100)
@@ -63,10 +49,7 @@ WebServer server(80);
 
 void handleRoot()
 {
-    // Add debug prints
     Serial.println("Handling root request");
-
-    // List files in SPIFFS to debug
     File root = SPIFFS.open("/");
     File file = root.openNextFile();
     Serial.println("Files in SPIFFS:");
@@ -77,7 +60,6 @@ void handleRoot()
         file = root.openNextFile();
     }
 
-    // Try to open index.html
     File htmlFile = SPIFFS.open("/index.html", "r");
     if (!htmlFile)
     {
@@ -95,14 +77,9 @@ void handleGetSettings()
 {
     StaticJsonDocument<1024> doc;
 
-    // Update CPU usage
     updateCPUUsage();
-    doc["cpuUsage"] = (int)cpu_usage; // Cast to int to ensure clean number
-
-    // Make sure we keep the WiFi strength for the gauge display
+    doc["cpuUsage"] = (int)cpu_usage;
     doc["wifiStrength"] = WiFi.RSSI();
-
-    // Extended System Information
     doc["chipModel"] = ESP.getChipModel();
     doc["chipRevision"] = ESP.getChipRevision();
     doc["sdkVersion"] = ESP.getSdkVersion();
@@ -113,13 +90,9 @@ void handleGetSettings()
     doc["hallSensor"] = hallRead();
     doc["uptime"] = millis() / 1000;
     doc["lastResetReason"] = esp_reset_reason();
-
-    // Calculate heap fragmentation manually
     uint32_t free_heap = ESP.getFreeHeap();
     uint32_t max_alloc = ESP.getMaxAllocHeap();
     uint32_t fragmentation = 100 - (max_alloc * 100) / free_heap;
-
-    // Extended Memory Information
     doc["totalHeap"] = ESP.getHeapSize() / 1024;
     doc["freeHeap"] = free_heap / 1024;
     doc["minFreeHeap"] = ESP.getMinFreeHeap() / 1024;
@@ -129,16 +102,12 @@ void handleGetSettings()
     doc["freePsram"] = ESP.getFreePsram() / 1024;
     doc["minFreePsram"] = ESP.getMinFreePsram() / 1024;
     doc["maxAllocPsram"] = ESP.getMaxAllocPsram() / 1024;
-
-    // Flash Information
     doc["flashChipSize"] = ESP.getFlashChipSize() / 1024;
     doc["flashChipSpeed"] = ESP.getFlashChipSpeed() / 1000000;
     doc["flashChipMode"] = ESP.getFlashChipMode();
     doc["sketchSize"] = ESP.getSketchSize() / 1024;
     doc["sketchMD5"] = ESP.getSketchMD5();
     doc["freeSketchSpace"] = ESP.getFreeSketchSpace() / 1024;
-
-    // Extended WiFi Information
     doc["wifiSSID"] = WiFi.SSID();
     doc["wifiBSSID"] = WiFi.BSSIDstr();
     doc["ipAddress"] = WiFi.localIP().toString();
@@ -153,7 +122,6 @@ void handleGetSettings()
     doc["isHidden"] = WiFi.SSID().length() == 0;
     doc["autoReconnect"] = WiFi.getAutoReconnect();
 
-    // Theme Colors
     const ThemeColors &theme = SettingsManager::getCurrentTheme();
     char hexColor[8];
     uint32_t color;
@@ -199,10 +167,7 @@ void handleGetSettings()
             (uint8_t)((color >> 8) & 0xFF),
             (uint8_t)(color & 0xFF));
     doc["cardBgColor"] = hexColor;
-
     doc["darkMode"] = SettingsManager::getDarkMode();
-
-    // Add these lines to the existing function
     doc["glances_host"] = SettingsManager::getGlancesHost();
     doc["glances_port"] = SettingsManager::getGlancesPort();
 
@@ -249,7 +214,6 @@ void handleUpdateSettings()
         {
             SettingsManager::updateThemeColor("card_bg_color", doc["card_bg_color"].as<uint32_t>());
         }
-        // Add these conditions to the existing if block
         if (doc.containsKey("glances_host"))
         {
             SettingsManager::setGlancesHost(doc["glances_host"].as<String>());
@@ -275,7 +239,6 @@ void handleRestart()
 
 void handleResetTheme()
 {
-    // Reset to original theme colors
     if (SettingsManager::getDarkMode())
     {
         const_cast<ThemeColors &>(SettingsManager::getCurrentTheme()) = dark_theme;
@@ -284,11 +247,7 @@ void handleResetTheme()
     {
         const_cast<ThemeColors &>(SettingsManager::getCurrentTheme()) = light_theme;
     }
-
-    // Clear saved colors from preferences
     SettingsManager::clearSavedColors();
-
-    // Update the display
     if (SettingsManager::themeCallback)
     {
         SettingsManager::themeCallback(SettingsManager::getDarkMode());
@@ -297,12 +256,10 @@ void handleResetTheme()
     server.send(200, "application/json", "{\"status\":\"success\"}");
 }
 
-// Add these new REST API endpoints for Home Assistant
 void handleHaStatus()
 {
     StaticJsonDocument<256> doc;
 
-    // Basic system stats that HA might want to monitor
     doc["temperature"] = String((temperatureRead() - 32) / 1.8, 2);
     doc["free_heap"] = ESP.getFreeHeap() / 1024;
     doc["wifi_strength"] = WiFi.RSSI();
@@ -348,7 +305,6 @@ void handleHaCommand()
         {
             success = true;
             message = "Restarting device";
-            // Schedule restart after sending response
             server.send(200, "application/json", "{\"success\":true,\"message\":\"Restarting device\"}");
             delay(500);
             ESP.restart();
@@ -360,7 +316,6 @@ void handleHaCommand()
     {
         if (doc["reset_theme"].as<bool>())
         {
-            // Reset theme to defaults
             if (SettingsManager::getDarkMode())
             {
                 const_cast<ThemeColors &>(SettingsManager::getCurrentTheme()) = dark_theme;
@@ -395,12 +350,8 @@ void setupWebServer()
     server.on("/settings", HTTP_POST, handleUpdateSettings);
     server.on("/restart", HTTP_POST, handleRestart);
     server.on("/resetTheme", HTTP_POST, handleResetTheme);
-
-    // Add new REST API endpoints for Home Assistant
     server.on("/api/status", HTTP_GET, handleHaStatus);
     server.on("/api/command", HTTP_POST, handleHaCommand);
-
-    // Add handlers for CSS and JS files
     server.on("/css/styles.css", HTTP_GET, []()
               {
         File file = SPIFFS.open("/css/styles.css", "r");

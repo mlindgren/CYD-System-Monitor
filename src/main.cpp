@@ -18,20 +18,14 @@ void setup()
     Serial.println("\n\n======================");
     Serial.println("Starting System Monitor");
     Serial.println("======================");
-
-    // Test Serial is working
     Serial.println("Step 1: Serial Test");
     delay(100);
-
-    // Connect to WiFi
     Serial.println("Step 2: Setting hostname");
     WiFi.hostname("systemmonitor");
     delay(100);
-
     Serial.print("Step 3: SSID to connect: ");
     Serial.println(WIFI_SSID);
     delay(100);
-
     Serial.println("Step 4: Starting WiFi connection");
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
@@ -41,7 +35,6 @@ void setup()
         delay(500);
         Serial.print(".");
         attempts++;
-        // Print the actual WiFi status
         Serial.printf(" (Status: %d)", WiFi.status());
     }
 
@@ -74,8 +67,6 @@ void setup()
 
     create_system_monitor_gui();
     SettingsManager::begin();
-
-    // Initialize SPIFFS
     if (!SPIFFS.begin(true))
     {
         Serial.println("SPIFFS Mount Failed");

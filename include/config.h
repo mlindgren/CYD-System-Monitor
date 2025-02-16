@@ -4,28 +4,23 @@
 #include <lvgl.h>
 #include <WString.h>
 
-// WiFi Credentials
-extern const char* const ssid;
-extern const char* const password;
+extern const char *const ssid;
+extern const char *const password;
 
-// Glances API Config
 extern String glances_host;
 extern uint16_t glances_port;
 #define GLANCES_UPDATE_INTERVAL 2000
 
-// Screen resolution
 extern const uint16_t screenWidth;
 extern const uint16_t screenHeight;
-
-// Theme structure and definitions
 struct ThemeColors
 {
-    lv_color_t bg_color;      // Background color
-    lv_color_t card_bg_color; // Background color for cards
-    lv_color_t text_color;    // Foreground/text color
-    lv_color_t cpu_color;     // Primary (used for CPU arc)
-    lv_color_t ram_color;     // Secondary (used for RAM arc)
-    lv_color_t border_color;  // Border color
+    lv_color_t bg_color;
+    lv_color_t card_bg_color;
+    lv_color_t text_color;
+    lv_color_t cpu_color;
+    lv_color_t ram_color;
+    lv_color_t border_color;
 };
 
 extern const ThemeColors light_theme;

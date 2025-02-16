@@ -37,27 +37,22 @@ void GlancesAPI::updateCPUData(StaticJsonDocument<4096> &doc)
     float cpuPercent = doc["total"].as<float>();
     int cpuCount = doc["cpucore"].as<int>();
 
-    if (cpu_arc_obj.arc && cpu_arc_obj.label) {
+    if (cpu_arc_obj.arc && cpu_arc_obj.label)
+    {
         lv_obj_t **labels = (lv_obj_t **)lv_obj_get_user_data(cpu_arc_obj.arc);
-        if (labels) {
+        if (labels)
+        {
             char buf[32];
 
-            // Update title
             lv_label_set_text(labels[0], "CPU");
-
-            // Update cores (now in the middle)
             snprintf(buf, sizeof(buf), "%d cores", cpuCount);
             lv_label_set_text(labels[1], buf);
-
-            // Update percentage (now at the bottom)
             snprintf(buf, sizeof(buf), "%d%%", (int)cpuPercent);
             lv_label_set_text(labels[2], buf);
-
-            // Adjust the font sizes and colors
-            lv_obj_set_style_text_font(labels[1], &lv_font_montserrat_10, 0);  // cores small
-            lv_obj_set_style_text_font(labels[2], &lv_font_montserrat_16, 0);  // percentage big
-            lv_obj_set_style_text_color(labels[1], lv_color_hex(0x808080), 0); // cores gray
-            lv_obj_set_style_text_color(labels[2], lv_color_white(), 0);       // percentage white
+            lv_obj_set_style_text_font(labels[1], &lv_font_montserrat_10, 0);
+            lv_obj_set_style_text_font(labels[2], &lv_font_montserrat_16, 0);
+            lv_obj_set_style_text_color(labels[1], lv_color_hex(0x808080), 0);
+            lv_obj_set_style_text_color(labels[2], lv_color_white(), 0);
         }
         set_arc_value_animated(cpu_arc_obj.arc, cpuPercent);
     }
@@ -71,19 +66,16 @@ void GlancesAPI::updateMemoryData(StaticJsonDocument<4096> &doc)
     float memPercent = doc["percent"].as<float>();
     float totalRam = doc["total"].as<float>() / (1024.0 * 1024.0 * 1024.0);
 
-    if (ram_arc_obj.arc && ram_arc_obj.label) {
+    if (ram_arc_obj.arc && ram_arc_obj.label)
+    {
         lv_obj_t **labels = (lv_obj_t **)lv_obj_get_user_data(ram_arc_obj.arc);
-        if (labels) {
+        if (labels)
+        {
             char buf[32];
 
-            // Update title
             lv_label_set_text(labels[0], "RAM");
-
-            // Update percentage
             snprintf(buf, sizeof(buf), "%d%%", (int)memPercent);
             lv_label_set_text(labels[1], buf);
-
-            // Update total RAM
             snprintf(buf, sizeof(buf), "/ %.1f GB", totalRam);
             lv_label_set_text(labels[2], buf);
         }
@@ -98,14 +90,10 @@ void updateGlancesData()
     {
         return;
     }
-
     static StaticJsonDocument<4096> doc;
-
-    // Update CPU and Memory
     GlancesAPI::updateCPUData(doc);
     GlancesAPI::updateMemoryData(doc);
 
-    // Temperature
     if (GlancesAPI::fetchData("/api/4/sensors", doc))
     {
         for (JsonVariant sensor : doc.as<JsonArray>())
@@ -121,7 +109,6 @@ void updateGlancesData()
         }
     }
 
-    // Disk usage
     if (GlancesAPI::fetchData("/api/4/fs", doc))
     {
         unsigned long long totalSize = 0;
@@ -146,7 +133,6 @@ void updateGlancesData()
         }
     }
 
-    // Cache usage
     if (GlancesAPI::fetchData("/api/4/fs", doc))
     {
         for (JsonVariant fs : doc.as<JsonArray>())
@@ -163,7 +149,6 @@ void updateGlancesData()
         }
     }
 
-    // Uptime
     if (GlancesAPI::fetchData("/api/4/uptime", doc))
     {
         String payload = doc.as<String>();
@@ -173,7 +158,6 @@ void updateGlancesData()
         update_compact_label(uptime_label, buf);
     }
 
-    // Network
     if (GlancesAPI::fetchData("/api/4/network", doc))
     {
         for (JsonVariant interface : doc.as<JsonArray>())
@@ -207,7 +191,6 @@ void updateGlancesData()
         }
     }
 
-    // Load
     if (GlancesAPI::fetchData("/api/4/load", doc))
     {
         float load1 = doc["min1"].as<float>();
