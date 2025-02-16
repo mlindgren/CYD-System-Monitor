@@ -490,10 +490,6 @@ const char INDEX_HTML[] PROGMEM = R"rawliteral(
                             <div class="info-value" id="chipCores">---</div>
                         </div>
                         <div class="info-item">
-                            <div class="info-label"><i class="ri-speed-up-line"></i> CPU Frequency</div>
-                            <div class="info-value" id="cpuFreq">---</div>
-                        </div>
-                        <div class="info-item">
                             <div class="info-label"><i class="ri-temp-hot-line"></i> Temperature</div>
                             <div class="info-value" id="temperature">---</div>
                         </div>
@@ -808,7 +804,6 @@ const char INDEX_HTML[] PROGMEM = R"rawliteral(
             document.getElementById('chipModel').textContent = data.chipModel;
             document.getElementById('sdkVersion').textContent = data.sdkVersion;
             document.getElementById('chipCores').textContent = data.chipCores;
-            document.getElementById('cpuFreq').textContent = data.cpuFreqMHz + ' MHz';
             document.getElementById('temperature').textContent = data.temperature + ' °C';
             document.getElementById('hallSensor').textContent = data.hallSensor;
             document.getElementById('uptime').textContent = formatUptime(data.uptime);
@@ -921,7 +916,6 @@ void handleGetSettings() {
     doc["chipModel"] = ESP.getChipModel();
     doc["sdkVersion"] = ESP.getSdkVersion();
     doc["chipCores"] = ESP.getChipCores();
-    doc["cpuFreq"] = ESP.getCpuFreqMHz();
     doc["temperature"] = String((temperatureRead() - 32) / 1.8, 2);
     doc["hallSensor"] = hallRead();
     doc["uptime"] = millis() / 1000;
