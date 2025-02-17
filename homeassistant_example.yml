@@ -1,0 +1,78 @@
+# Sensors from status endpoint
+rest:
+  - resource: http://YOUR.DEVICE.IP.HERE/api/status
+    scan_interval: 30
+    sensor:
+      - name: "CYDSM Temperature"
+        unique_id: cydsm_temperature
+        value_template: "{{ value_json.temperature }}"
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+
+      - name: "CYDSM Free Memory"
+        unique_id: cydsm_free_memory
+        value_template: "{{ value_json.free_heap }}"
+        unit_of_measurement: "KB"
+        state_class: measurement
+
+      - name: "CYDSM WiFi Signal"
+        unique_id: cydsm_wifi_signal
+        value_template: "{{ value_json.wifi_strength }}"
+        unit_of_measurement: "dBm"
+        device_class: signal_strength
+        state_class: measurement
+
+      - name: "CYDSM Uptime"
+        unique_id: cydsm_uptime
+        value_template: "{{ value_json.uptime }}"
+        unit_of_measurement: "s"
+        state_class: measurement
+
+# Binary sensors
+binary_sensor:
+  - platform: rest
+    name: "CYDSM Dark Mode"
+    unique_id: cydsm_dark_mode
+    resource: http://YOUR.DEVICE.IP.HERE/api/status
+    value_template: "{{ value_json.dark_mode }}"
+    device_class: "running"
+
+  - platform: rest
+    name: "CYDSM Display State"
+    unique_id: cydsm_display
+    resource: http://YOUR.DEVICE.IP.HERE/api/status
+    value_template: "{{ value_json.display }}"
+    device_class: "light"
+
+# Switches for controlling the device
+switch:
+  - platform: rest
+    name: "CYDSM Dark Mode Toggle"
+    unique_id: cydsm_dark_mode_switch
+    resource: http://YOUR.DEVICE.IP.HERE/api/command
+    body_on: '{"dark_mode": true}'
+    body_off: '{"dark_mode": false}'
+    is_on_template: "{{ value_json.dark_mode }}"
+    state_resource: http://YOUR.DEVICE.IP.HERE/api/status
+
+  - platform: rest
+    name: "CYDSM Display Toggle"
+    unique_id: cydsm_display_switch
+    resource: http://YOUR.DEVICE.IP.HERE/api/command
+    body_on: '{"display": true}'
+    body_off: '{"display": false}'
+    is_on_template: "{{ value_json.display }}"
+    state_resource: http://YOUR.DEVICE.IP.HERE/api/status
+
+# REST Commands for control operations
+rest_command:
+  cydsm_restart:
+    url: http://YOUR.DEVICE.IP.HERE/api/command
+    method: POST
+    payload: '{"restart": true}'
+
+  cydsm_reset_theme:
+    url: http://YOUR.DEVICE.IP.HERE/api/command
+    method: POST
+    payload: '{"reset_theme": true}'

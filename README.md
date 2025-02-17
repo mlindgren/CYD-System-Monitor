@@ -95,6 +95,18 @@ The device exposes REST API endpoints for Home Assistant integration:
 - GET `/api/status` - Device status and metrics
 - POST `/api/command` - Control endpoints for theme switching and device restart
 
+#### Easy Integration
+
+A complete Home Assistant configuration example is provided in [homeassistant_example.yml](homeassistant_example.yml). This includes:
+
+- System sensors (temperature, memory, WiFi signal, uptime)
+- Binary sensors for dark mode and display state
+- Switches for controlling dark mode and display power
+- Commands for device restart and theme reset
+
+Simply copy the configuration, replace `YOUR.DEVICE.IP.HERE` with your device's IP address, and add it to your Home Assistant configuration.
+You should see the entities show up in home assistant after a restart.
+
 ## API Endpoints
 
 ### Web Interface Endpoints
