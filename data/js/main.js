@@ -94,6 +94,7 @@ fetch('/settings')
   .then((data) => {
     const darkMode = data.darkMode
     document.getElementById('darkMode').checked = darkMode
+    document.getElementById('themeState').textContent = darkMode ? 'DARK' : 'LIGHT'
     document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light')
     const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color')
     cpuChart.options.scales.y.ticks.color = textColor
@@ -206,6 +207,7 @@ function updateVisualizations(data) {
 function updateTheme() {
   const darkMode = document.getElementById('darkMode').checked
   document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light')
+  document.getElementById('themeState').textContent = darkMode ? 'DARK' : 'LIGHT'
 
   const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color')
   cpuChart.options.scales.y.ticks.color = textColor
@@ -395,5 +397,37 @@ function saveGlancesSettings() {
     .catch((error) => {
       console.error('Error:', error)
       alert('Failed to update Glances settings')
+    })
+}
+
+let displayOn = true
+
+function toggleDisplay() {
+  const screenToggle = document.getElementById('screenToggle')
+  displayOn = !screenToggle.checked
+  document.getElementById('displayState').textContent = displayOn ? 'ON' : 'OFF'
+
+  fetch('/displaySleep', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ sleep: !displayOn })
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (!data.success) {
+        screenToggle.checked = !screenToggle.checked
+        displayOn = !displayOn
+        document.getElementById('displayState').textContent = displayOn ? 'ON' : 'OFF'
+        alert('Failed to toggle display')
+      }
+    })
+    .catch((error) => {
+      console.error('Error:', error)
+      screenToggle.checked = !screenToggle.checked
+      displayOn = !displayOn
+      document.getElementById('displayState').textContent = displayOn ? 'ON' : 'OFF'
+      alert('Failed to toggle display')
     })
 }

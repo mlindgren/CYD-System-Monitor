@@ -7,6 +7,10 @@
 #include "esp_system.h"
 #include "SPIFFS.h"
 #include "FS.h"
+#include "display.h"
+
+#define TFT_BL 27
+#define TFT_BACKLIGHT_ON HIGH
 
 extern const ThemeColors dark_theme;
 extern const ThemeColors light_theme;
@@ -265,6 +269,7 @@ void handleHaStatus()
     doc["wifi_strength"] = WiFi.RSSI();
     doc["uptime"] = millis() / 1000;
     doc["dark_mode"] = SettingsManager::getDarkMode();
+    doc["display"] = digitalRead(TFT_BL) == TFT_BACKLIGHT_ON;
 
     String response;
     serializeJson(doc, response);
@@ -297,6 +302,13 @@ void handleHaCommand()
         SettingsManager::setDarkMode(doc["dark_mode"].as<bool>());
         success = true;
         message = "Dark mode updated";
+    }
+
+    if (doc.containsKey("display"))
+    {
+        display_sleep(!doc["display"].as<bool>());
+        success = true;
+        message = "Display state updated";
     }
 
     if (doc.containsKey("restart"))
@@ -343,6 +355,36 @@ void handleHaCommand()
     server.send(200, "application/json", responseStr);
 }
 
+void handleDisplaySleep()
+{
+    if (server.method() != HTTP_POST)
+    {
+        server.send(405, "application/json", "{\"error\":\"Method not allowed\"}");
+        return;
+    }
+
+    String json = server.arg("plain");
+    StaticJsonDocument<256> doc;
+    DeserializationError error = deserializeJson(doc, json);
+
+    if (error)
+    {
+        server.send(400, "application/json", "{\"error\":\"Invalid JSON\"}");
+        return;
+    }
+
+    if (doc.containsKey("sleep"))
+    {
+        bool sleep = doc["sleep"].as<bool>();
+        display_sleep(sleep);
+        server.send(200, "application/json", "{\"success\":true,\"message\":\"Display state updated\"}");
+    }
+    else
+    {
+        server.send(400, "application/json", "{\"error\":\"Missing sleep parameter\"}");
+    }
+}
+
 void setupWebServer()
 {
     server.on("/", HTTP_GET, handleRoot);
@@ -363,6 +405,8 @@ void setupWebServer()
         File file = SPIFFS.open("/js/main.js", "r");
         server.streamFile(file, "application/javascript");
         file.close(); });
+
+    server.on("/displaySleep", HTTP_POST, handleDisplaySleep);
 
     server.begin();
 }

@@ -5,7 +5,7 @@
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1" />
-    <title>ESP32 System Monitor</title>
+    <title>CYD System Monitor</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link
       href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css"
@@ -22,17 +22,37 @@
         <div class="loader-text">Connecting to ESP32...</div>
       </div>
       <header class="header">
-        <h1><i class="ri-cpu-line"></i> ESP32 System Monitor</h1>
+        <h1><i class="ri-cpu-line"></i> CYD System Monitor</h1>
         <div class="theme-toggle">
-          <span><i class="ri-sun-line"></i></span>
-          <label class="switch">
-            <input
-              type="checkbox"
-              id="darkMode"
-              onchange="updateTheme()" />
-            <span class="slider"></span>
-          </label>
-          <span><i class="ri-moon-line"></i></span>
+          <div class="toggle-group">
+            <span class="toggle-label">Theme: <span id="themeState">LIGHT</span></span>
+            <div class="toggle-controls">
+              <span><i class="ri-sun-line"></i></span>
+              <label class="switch">
+                <input
+                  type="checkbox"
+                  id="darkMode"
+                  onchange="updateTheme()" />
+                <span class="slider"></span>
+              </label>
+              <span><i class="ri-moon-line"></i></span>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="toggle-group">
+            <span class="toggle-label">Display: <span id="displayState">ON</span></span>
+            <div class="toggle-controls">
+              <span><i class="ri-eye-line"></i></span>
+              <label class="switch">
+                <input
+                  type="checkbox"
+                  id="screenToggle"
+                  onchange="toggleDisplay()" />
+                <span class="slider"></span>
+              </label>
+              <span><i class="ri-eye-off-line"></i></span>
+            </div>
+          </div>
         </div>
       </header>
 

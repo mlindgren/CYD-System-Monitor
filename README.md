@@ -1,8 +1,8 @@
-# ESP32 System Monitor
+# CYD System Monitor (ESP32 "Cheap Yellow Display")
 
-A sleek system monitoring display powered by ESP32 that shows real-time system metrics from a Glances server. Features a customizable UI with dark/light theme support using LVGL graphics library.
+A sleek system monitoring display powered by ESP32 that shows real-time system metrics from a Glances server. Features a customizable UI with dark/light theme support using LVGL graphics library and power-saving display controls.
 
-![My Unraid using it](Images/device.jpeg)
+![Unraid](Images/device.jpeg)
 
 ## Features
 
@@ -21,8 +21,9 @@ A sleek system monitoring display powered by ESP32 that shows real-time system m
   - System statistics dashboard
   - Glances server configuration
   - Device control and monitoring
+  - Display power management
 
-![Web UI](Images/webui.png)
+![Web UI](Images/web.png)
 
 - Home Assistant integration:
   - REST API endpoints
@@ -98,18 +99,43 @@ The device exposes REST API endpoints for Home Assistant integration:
 
 ### Web Interface Endpoints
 
-- GET `/settings` - Current device and theme settings
-- POST `/settings` - Update device settings
+- GET `/settings` - Returns:
+  - Current device settings and theme colors
+  - System metrics (CPU, memory, temperature)
+  - Network information
+  - Device information (chip model, SDK version, etc.)
+  - Hardware statistics (heap, PSRAM, flash)
+
+- POST `/settings` - Update device settings:
+  - Theme colors
+  - Dark/light mode
+  - Glances server configuration
+
 - POST `/restart` - Restart device
 - POST `/resetTheme` - Reset theme to defaults
+- POST `/displaySleep` - Control display power state:
+
+  ```json
+  {
+    "sleep": true|false
+  }
+  ```
 
 ### Home Assistant Endpoints
 
-- GET `/api/status` - Device status and metrics
+- GET `/api/status` - Returns:
+  - Temperature
+  - Free heap memory
+  - WiFi signal strength
+  - Uptime
+  - Dark mode state
+  - Display state
+
 - POST `/api/command` - Control endpoints for:
-  - Theme switching
-  - Device restart
-  - Theme reset
+  - Theme switching (`dark_mode`: true|false)
+  - Display power (`display`: true|false)
+  - Device restart (`restart`: true)
+  - Theme reset (`reset_theme`: true)
 
 ## Contributing
 

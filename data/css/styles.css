@@ -459,63 +459,50 @@ h2 {
   .text-input {
     width: 100%;
   }
+  .toggle-label {
+    display: none;
+  }
+  .theme-toggle .divider {
+    height: 24px;
+  }
 }
 
 .theme-toggle {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 1rem;
   color: var(--text-color);
 }
 
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 48px;
-  height: 24px;
+.toggle-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
+.toggle-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-color);
+  font-weight: 500;
+  opacity: 0.7;
+  transform: translateY(-2px);
 }
 
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: var(--border-color);
-  transition: 0.3s;
-  border-radius: 24px;
-  border: 1px solid var(--border-color);
+.toggle-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transform: translateY(2px);
 }
 
-.slider:before {
-  position: absolute;
-  content: '';
-  height: 18px;
-  width: 18px;
-  left: 2px;
-  bottom: 2px;
-  background-color: var(--card-bg);
-  transition: 0.3s;
-  border-radius: 50%;
-  border: 1px solid var(--border-color);
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-input:checked + .slider {
-  background-color: var(--primary-color);
-}
-
-input:checked + .slider:before {
-  transform: translate(24px, -50%);
-  background-color: var(--card-bg);
+.theme-toggle .divider {
+  width: 1px;
+  height: 40px;
+  background: var(--border-color);
+  margin: 0 0.5rem;
 }
 
 .footer {
@@ -603,4 +590,59 @@ input:checked + .slider:before {
 #tempValue,
 .signal-value {
   display: none;
+}
+
+.btn.active {
+  background-color: var(--warning-color);
+  color: var(--bg-color);
+}
+
+.btn.active:hover {
+  background-color: var(--warning-color);
+  opacity: 0.9;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--border-color);
+  transition: 0.4s;
+  border-radius: 20px;
+}
+
+.slider:before {
+  position: absolute;
+  content: '';
+  height: 16px;
+  width: 16px;
+  left: 2px;
+  bottom: 2px;
+  background-color: var(--card-bg);
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: var(--primary-color);
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
 }
