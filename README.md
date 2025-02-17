@@ -78,16 +78,6 @@ A sleek system monitoring display powered by ESP32 that shows real-time system m
    - Choose theme colors if you want to change them
    - Save the configuration
 
-### Web Interface
-
-The device hosts a web interface for configuration, accessible at its IP address. Features include:
-
-- Theme switching (dark/light)
-- Color customization
-- System statistics
-- Device restart
-- Theme reset
-
 ### Home Assistant Integration
 
 The device exposes REST API endpoints for Home Assistant integration:
