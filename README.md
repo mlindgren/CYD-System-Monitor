@@ -152,5 +152,3 @@ You should see the entities show up in home assistant after a restart.
 ## Contributing
 
 Feel free to submit issues, fork the repository, and create pull requests for any improvements.
-
-## License
