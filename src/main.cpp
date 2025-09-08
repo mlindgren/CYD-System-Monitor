@@ -82,8 +82,15 @@ void setup()
 
 void loop()
 {
+    // Handle LVGL tasks - this should be called frequently
     lv_timer_handler();
+    
+    // Update Glances data at regular intervals
     updateGlancesData();
+    
+    // Handle web server requests
     handleWebServer();
-    delay(1);
+    
+    // Add a short delay to prevent watchdog issues
+    delay(5);
 }

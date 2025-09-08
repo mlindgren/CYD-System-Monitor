@@ -3,8 +3,11 @@
 #include <Arduino.h>
 
 // Screen resolution
-const uint16_t screenWidth = 240;
-const uint16_t screenHeight = 320;
+const uint16_t screenWidth = 320;
+const uint16_t screenHeight = 240;
+
+// Debug mode - set to true for verbose logging, false for quiet operation
+bool debug_mode = false;
 
 // Glances settings
 String glances_host;

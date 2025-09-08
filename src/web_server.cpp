@@ -1,5 +1,6 @@
 #include "web_server.h"
 #include "settings_manager.h"
+#include "config.h"
 #include <WebServer.h>
 #include <ArduinoJson.h>
 #include <WiFi.h>
@@ -174,6 +175,7 @@ void handleGetSettings()
     doc["darkMode"] = SettingsManager::getDarkMode();
     doc["glances_host"] = SettingsManager::getGlancesHost();
     doc["glances_port"] = SettingsManager::getGlancesPort();
+    doc["debug_mode"] = debug_mode;
 
     String response;
     serializeJson(doc, response);
@@ -225,6 +227,11 @@ void handleUpdateSettings()
         if (doc.containsKey("glances_port"))
         {
             SettingsManager::setGlancesPort(doc["glances_port"].as<uint16_t>());
+        }
+        if (doc.containsKey("debug_mode"))
+        {
+            debug_mode = doc["debug_mode"].as<bool>();
+            Serial.printf("Debug mode %s\n", debug_mode ? "enabled" : "disabled");
         }
         server.send(200, "application/json", "{\"status\":\"success\"}");
     }

@@ -311,12 +311,16 @@ void applyTheme(bool darkMode)
 
 void create_system_monitor_gui()
 {
+    Serial.println("Creating system monitor GUI...");
+    
     const ThemeColors *theme = DARK_MODE ? &dark_theme : &light_theme;
     lv_obj_set_style_bg_color(lv_scr_act(), theme->bg_color, 0);
 
     lv_obj_t *main_cont = lv_obj_create(lv_scr_act());
-    if (!main_cont)
+    if (!main_cont) {
+        Serial.println("Failed to create main container");
         return;
+    }
 
     lv_obj_set_size(main_cont, 320, 240);
     lv_obj_set_style_pad_all(main_cont, 2, 0);
@@ -327,12 +331,16 @@ void create_system_monitor_gui()
     lv_obj_clear_flag(main_cont, LV_OBJ_FLAG_SCROLLABLE);
 
     lv_obj_t *left_col = lv_obj_create(main_cont);
-    if (!left_col)
+    if (!left_col) {
+        Serial.println("Failed to create left column");
         return;
+    }
 
     lv_obj_t *right_col = lv_obj_create(main_cont);
-    if (!right_col)
+    if (!right_col) {
+        Serial.println("Failed to create right column");
         return;
+    }
 
     lv_obj_set_size(left_col, 158, 240);
     lv_obj_set_style_pad_all(left_col, 2, 0);
@@ -348,39 +356,58 @@ void create_system_monitor_gui()
     lv_obj_set_flex_flow(right_col, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_flex_align(right_col, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
 
+    Serial.println("Creating CPU arc...");
     cpu_arc_obj = create_arc(left_col, "CPU", theme->cpu_color);
-    if (!cpu_arc_obj.arc || !cpu_arc_obj.label)
+    if (!cpu_arc_obj.arc || !cpu_arc_obj.label) {
+        Serial.println("Failed to create CPU arc");
         return;
+    }
 
+    Serial.println("Creating RAM arc...");
     ram_arc_obj = create_arc(right_col, "RAM", theme->ram_color);
-    if (!ram_arc_obj.arc || !ram_arc_obj.label)
+    if (!ram_arc_obj.arc || !ram_arc_obj.label) {
+        Serial.println("Failed to create RAM arc");
         return;
+    }
 
     temp_label = create_compact_label(left_col, LV_SYMBOL_WARNING " Temp: -- °C", theme);
-    if (!temp_label)
+    if (!temp_label) {
+        Serial.println("Failed to create temp label");
         return;
+    }
 
     load_label = create_compact_label(left_col, LV_SYMBOL_CHARGE " Load: -.-", theme);
-    if (!load_label)
+    if (!load_label) {
+        Serial.println("Failed to create load label");
         return;
+    }
 
     uptime_label = create_compact_label(left_col, LV_SYMBOL_POWER "  ---", theme);
-    if (!uptime_label)
+    if (!uptime_label) {
+        Serial.println("Failed to create uptime label");
         return;
+    }
 
     disk_label = create_compact_label(right_col, LV_SYMBOL_DRIVE " Array: ---%", theme);
-    if (!disk_label)
+    if (!disk_label) {
+        Serial.println("Failed to create disk label");
         return;
+    }
 
     cache_label = create_compact_label(right_col, LV_SYMBOL_SAVE " Cache: ---%", theme);
-    if (!cache_label)
+    if (!cache_label) {
+        Serial.println("Failed to create cache label");
         return;
+    }
 
     network_label = create_compact_label(right_col, LV_SYMBOL_DOWNLOAD " --- " LV_SYMBOL_UPLOAD " ---", theme);
-    if (!network_label)
+    if (!network_label) {
+        Serial.println("Failed to create network label");
         return;
+    }
 
     SettingsManager::setThemeChangeCallback(applyTheme);
-
     applyTheme(SettingsManager::getDarkMode());
+    
+    Serial.println("GUI creation completed successfully!");
 }

@@ -2,6 +2,8 @@
 
 A sleek system monitoring display powered by ESP32 that shows real-time system metrics from a Glances server. Features a customizable UI with dark/light theme support using LVGL graphics library and power-saving display controls.
 
+Forked from [iamlite/CYD-System-Monitor](https://github.com/iamlite/CYD-System-Monitor) to add compatibility for the ESP32-2432S028R and Windows hosts.
+
 ![Unraid](Images/device.jpeg)
 
 ## Features
@@ -30,72 +32,142 @@ A sleek system monitoring display powered by ESP32 that shows real-time system m
   - Device status monitoring & control
   - Remote theme control
 
-## Requirements
+## Hardware Requirements
 
-- ESP32 development board
-- TFT display compatible with TFT_eSPI library
-  - I'm using this cheap yellow display with ESP32 built in: [aliexpress](https://s.click.aliexpress.com/e/_olrdG2w)
-  - The settings in this project are for this display.
-- Glances server running on the target system
+Tested on **ESP32-2432S028R** ("Cheap Yellow Display")
+  - ESP32-D0WD-V3 (revision v3.1) 
+  - 2.8" ILI9341 TFT Display (320x240)
+  - Integrated touch controller
+  - Built-in USB-to-serial converter
+
+Alternatively, it should work with any ESP32 development board a TFT display compatible with 
+the lvgl and TFT_eSPI libraries
 
 ## Setup
 
-1. Clone this repository
-2. Open the project in PlatformIO
+### 1. Install PlatformIO
+Visit [https://platformio.org/](https://platformio.org/) and install PlatformIO IDE or the
+PlatformIO Core CLI.
 
-   - Rename the `platformio.example.ini` file to `platformio.ini`
-   - Edit the `platformio.ini` file to set the correct path to your Arduino libraries
+### 2. Install USB Drivers (if needed)
+For ESP32-2432S028R on Windows:
+- Download and install CH340 drivers from the manufacturer
+- Verify the device appears in Device Manager after connection (should be under "Ports (COM & LPT)"
+  as USB-SERIAL CH340 or something similar)
 
-3. Configure your TFT display settings:
-   - Modify TFT_eSPI settings according to your display's configuration
-   - Adjust screen resolution in config.h if needed:
+You can also test connectivity with `esptool`:
 
-   ```cpp
+```bash
+$ pip install esptool # Install first if necessary
+$ esptool read-mac
+esptool v5.0.2
+Connected to ESP32 on COM3:
+Chip type:          ESP32-D0WD-V3 (revision v3.1)
+Features:           Wi-Fi, BT, Dual Core + LP Core, 240MHz, Vref calibration in eFuse, Coding Scheme None
+...
+```
 
-   extern const uint16_t screenWidth = 240;
-   extern const uint16_t screenHeight = 320;
+### 3. Clone the repo
 
-   ```
+```bash
+$ git clone https://github.com/your-username/CYD-System-Monitor.git
+$ cd CYD-System-Monitor
+```
 
-4. Configure your network settings in credentials.example.h:
+### 4. Configure PlatformIO
 
-   - Rename the file to `credentials.h`
-   - Edit the file to set your WiFi SSID and password
+Rename `platformio.example.ini` to `platformio.ini` and update the library path:
 
-   ```cpp
+```ini
+# Default Arduino library locations:
+# Windows: C:\Users\<username>\Documents\Arduino\libraries
+# Linux: ~/Arduino/libraries
+# macOS: ~/Documents/Arduino/libraries
 
-    const char*const WIFI_SSID = "your_ssid_here";
-    const char* const WIFI_PASSWORD = "your_password_here";
+lib_extra_dirs = /path/to/your/Arduino/libraries
+```
 
-   ```
+### 5. Configure Network Credentials
 
-5. Build and upload the project using PlatformIO
+Rename `credentials.example.h` to `credentials.h` and update:
 
-6. Set up your Glances server configuration in the web interface:
+```cpp
+const char* const WIFI_SSID = "your_wifi_network";
+const char* const WIFI_PASSWORD = "your_wifi_password";
+```
 
-   - Access the web interface at the device's IP address
-   - Configure the Glances server IP address and port
-   - Choose theme colors if you want to change them
-   - Save the configuration
+### 6. Build and Upload
 
-### Home Assistant Integration
+```bash
+# Build the project
+pio run
 
-The device exposes REST API endpoints for Home Assistant integration:
+# Upload firmware
+pio run -t upload
 
-- GET `/api/status` - Device status and metrics
-- POST `/api/command` - Control endpoints for theme switching and device restart
+# Upload filesystem (web files)
+pio run -t uploadfs
 
-#### Easy Integration
+# Monitor serial output
+pio device monitor
+```
 
-A complete Home Assistant configuration example is provided in [homeassistant_example.yml](homeassistant_example.yml). This includes:
+### 7. Configure Glances Server
 
-- System sensors (temperature, memory, WiFi signal, uptime)
-- Binary sensors for dark mode and display state
-- Switches for controlling dark mode and display power
-- Commands for device restart and theme reset
+#### Option A: Use Web Interface
+1. Connect to the CYD device's IP address in your browser (you can see the IP in the serial output when the device boots)
+2. Configure Glances server host and port in the settings
 
-Simply copy the configuration, replace `YOUR.DEVICE.IP.HERE` with your device's IP address, and add it to your Home Assistant configuration.
-You should see the entities show up in home assistant after a restart.
+#### Option B: Use CURL
+```bash
+curl -X POST http://[ESP32_IP]/settings \
+  -H "Content-Type: application/json" \
+  -d '{"glances_host": "192.168.1.50", "glances_port": 61208}'
+```
+
+## Troubleshooting
+
+### Display Not Working
+1. Check TFT_eSPI configuration matches your hardware
+2. Verify pin connections in `User_Setup.h`
+3. Enable debug mode to see initialization messages
+
+### No Glances Data
+1. Verify Glances server is running and accessible
+2. Check network connectivity 
+3. Enable debug mode to see API call details
+
+Some Glances modules can be very slow on Windows, which can cause the ESP32 application to become
+unresponsive while waiting on HTTP calls. You may need to disable slow modules in glances.conf,
+particularly `processcount` and `sensors`. See https://github.com/nicolargo/glances/issues/3046
+
+### USB Connection Issues
+1. Install CH340 drivers on Windows
+2. Check cable supports data transfer (not just power)
+3. Try different USB ports
+4. Verify device appears in Device Manager/system logs
+
+## Debug Mode
+
+To print extra diagnostic messages, you can enable debug mode either by setting
+`bool debug_mode = true;` in config.cpp, or at runtime with `curl`:
+
+```bash
+$ curl -X POST http://[ESP32_IP]/settings \
+  -H "Content-Type: application/json" \
+  -d '{"debug_mode": true}'
+```
+
+## Configuration Files
+
+### Core Configuration
+- `credentials.h` - WiFi network settings
+- `platformio.ini` - Build configuration and library paths
+- `include/config.h` - Display resolution and debug settings
+
+### Hardware Configuration  
+- `include/User_Setup.h` - TFT_eSPI pin mappings for CYD
+- Pin configuration automatically applied via build flags
 
 ## API Endpoints
 
